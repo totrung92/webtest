@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 function App() {
-  const API_URL = "https://your-backend.onrender.com"; // 🔴 Thay bằng URL Render backend của bạn
+  const API_URL = "https://webtest-jdej.onrender.com"; // 🔴 Thay bằng URL Render backend của bạn
 
   const [users, setUsers] = useState([]);
   const [name, setName] = useState("");
