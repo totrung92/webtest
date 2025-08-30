@@ -1,15 +1,25 @@
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
-
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+let pool;
+if (process.env.NODE_ENV !== "production")
+{
+	require("dotenv").config({ quiet: true });
+	pool = new Pool({
+						user: process.env.PG_USER,
+						host: process.env.PG_HOST,
+						database: process.env.PG_DATABASE,
+						password: process.env.PG_PASSWORD,
+						port: process.env.PG_PORT,
+					});
+}
+else
+{
+	pool= new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+}
 
 app.get("/", (req, res) => {
   res.send("✅ Backend is running on Render!");
@@ -38,8 +48,15 @@ app.post("/users", async (req, res) => {
     res.status(500).send("Insert error");
   }
 });
-
-const PORT = process.env.PORT || 3000;
+let PORT;
+if (process.env.NODE_ENV !== "production")
+{
+	PORT = process.env.PORT || 5000;
+}
+else
+{
+	PORT = process.env.PORT || 3000;
+}
 app.listen(PORT, () => {
   console.log(`🚀 Server started on port ${PORT}`);
 });
