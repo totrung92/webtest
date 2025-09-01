@@ -22,9 +22,8 @@ else
 }
 
 app.get("/", (req, res) => {
-  res.send("✅ Backend is running on Render!");
+  res.send("✅ Backend is running");
 });
-
 app.get("/users", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM users");
@@ -34,18 +33,35 @@ app.get("/users", async (req, res) => {
     res.status(500).send("DB error");
   }
 });
-
-app.post("/users", async (req, res) => {
-  const { name, email } = req.body;
+app.post("/register", async (req, res) => {
+  const {username, email, password } = req.body;
   try {
     const result = await pool.query(
-      "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *",
-      [name, email]
+      "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *",
+      [username, email, password]
     );
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).send("Insert error");
+  }
+});
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body; // Sử dụng email và password từ frontend
+  try {
+    // Kiểm tra user với email và password (giả sử cột password trong DB là 'password')
+    const result = await pool.query(
+      "SELECT * FROM users WHERE username = $1 AND password = $2",
+      [username, password]
+    );
+    if (result.rows.length > 0) {
+      res.json(true); // Đăng nhập thành công
+    } else {
+      res.json(false); // Đăng nhập thất bại
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(false);
   }
 });
 let PORT;
